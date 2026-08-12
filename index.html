@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>La Gérante — Prototype</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1b1410">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="La Gérante">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Manrope:wght@500;700;800&display=swap');
 
@@ -444,6 +450,7 @@ function deleteProduct(id) {
 }
 function goHome(){
   document.getElementById('screen-facture').classList.remove('active');
+  document.getElementById('screen-products').classList.remove('active');
   document.getElementById('screen-accueil').classList.add('active');
   renderAccueil();
 }
