@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>La Gérante — Prototype</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Manrope:wght@500;700;800&display=swap');
+
+  :root{
+    --bg: #1b1410;
+    --bg-soft: #241a14;
+    --slate: #2c221b;
+    --slate-line: #3a2d22;
+    --chalk: #f3ece0;
+    --chalk-dim: #b8ab98;
+    --amber: #e8a33d;
+    --amber-deep: #c07f22;
+    --paid: #6fae82;
+    --unpaid: #d9714e;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(232,163,61,0.06), transparent 60%),
+      radial-gradient(ellipse at 100% 100%, rgba(232,163,61,0.04), transparent 50%);
+    color: var(--chalk);
+    font-family: 'Manrope', sans-serif;
+    display:flex; justify-content:center;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  .phone{
+    width:100%; max-width:420px;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    position:relative;
+  }
+
+  .topbar{
+    padding: 22px 20px 14px;
+    display:flex; align-items:baseline; justify-content:space-between;
+    border-bottom: 1px solid var(--slate-line);
+  }
+  .brand{
+    font-family:'Kalam', cursive; font-weight:700;
+    font-size: 26px; color: var(--amber);
+    letter-spacing: 0.3px;
+  }
+  .brand span{ color: var(--chalk-dim); font-family:'Manrope',sans-serif; font-weight:600; font-size:12px; display:block; letter-spacing:1.5px; text-transform:uppercase; margin-top:2px;}
+
+  .screen{ flex:1; display:none; flex-direction:column; padding: 18px 18px 100px; animation: fade .25s ease; }
+  .screen.active{ display:flex; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ACCUEIL */
+  .new-client-btn{
+    background: linear-gradient(180deg, var(--amber), var(--amber-deep));
+    color: #1b1410;
+    border:none;
+    border-radius: 16px;
+    padding: 20px;
+    font-size: 17px;
+    font-weight: 800;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    box-shadow: 0 6px 0 #8a5c15, 0 10px 20px rgba(0,0,0,0.35);
+    margin-bottom: 26px;
+    letter-spacing:0.2px;
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .new-client-btn:active{ transform: translateY(4px); box-shadow: 0 2px 0 #8a5c15, 0 4px 10px rgba(0,0,0,0.3); }
+  .new-client-btn .plus{ font-size:22px; line-height:1; }
+
+  .section-label{
+    font-size: 12px; font-weight:700; letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--chalk-dim); margin: 4px 0 12px 4px;
+  }
+
+  .client-list{ display:flex; flex-direction:column; gap: 10px; }
+
+  .client-card{
+    background: var(--slate);
+    border: 1px solid var(--slate-line);
+    border-radius: 14px;
+    padding: 16px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:relative;
+    overflow:hidden;
+  }
+  .client-card::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:4px;
+    background: var(--unpaid);
+  }
+  .client-card .name{
+    font-family:'Kalam', cursive; font-weight:700; font-size: 19px; color: var(--chalk);
+  }
+  .client-card .meta{ font-size:12px; color:var(--chalk-dim); margin-top:2px; }
+  .client-card .total{ font-family:'Manrope'; font-weight:800; font-size:18px; color: var(--amber); }
+
+  .empty-state{
+    text-align:center; color: var(--chalk-dim); font-size:14px; padding: 40px 20px;
+    border: 1px dashed var(--slate-line); border-radius:14px;
+  }
+  .empty-state .big{ font-size:34px; display:block; margin-bottom:8px; opacity:0.6; }
+
+  /* FACTURE */
+  .back-row{ display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .back-btn{
+    background: var(--slate); border:1px solid var(--slate-line); color:var(--chalk);
+    width:38px; height:38px; border-radius:10px; font-size:18px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .facture-header{
+    background: var(--slate);
+    border: 1px solid var(--slate-line);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .facture-header .name{
+    font-family:'Kalam', cursive; font-weight:700; font-size: 24px; color:var(--chalk);
+  }
+  .facture-header .name-input{
+    font-family:'Kalam', cursive; font-weight:700; font-size: 22px; color:var(--chalk);
+    background:transparent; border:none; border-bottom: 1px dashed var(--chalk-dim);
+    outline:none; width: 140px; padding-bottom:2px;
+  }
+  .facture-header .total-wrap{ text-align:right; }
+  .facture-header .total-label{ font-size:10px; letter-spacing:1.4px; text-transform:uppercase; color:var(--chalk-dim); }
+  .facture-header .total{ font-size: 26px; font-weight:800; color:var(--amber); }
+
+  .lignes{ margin-bottom: 22px; }
+  .ligne{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 10px 4px; border-bottom: 1px solid var(--slate-line);
+    font-size: 14px;
+  }
+  .ligne .lname{ color: var(--chalk); }
+  .ligne .lname .qty{ color: var(--amber); font-weight:700; margin-left:6px;}
+  .ligne .lprice{ color: var(--chalk-dim); }
+
+  .stepper{ display:flex; align-items:center; gap:10px; background:var(--bg-soft); border-radius:10px; padding:4px 6px; }
+  .stepper button{
+    width:26px; height:26px; border-radius:7px; border:none; background:var(--slate-line); color:var(--chalk);
+    font-size:16px; font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+  .stepper .qnum{ min-width:16px; text-align:center; font-weight:700; }
+
+  .lignes-empty{ color:var(--chalk-dim); font-size:13px; padding: 10px 4px; }
+
+  .grid-label{ font-size: 12px; font-weight:700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--chalk-dim); margin: 6px 0 12px 4px; }
+
+  .product-grid{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .product{
+    background: var(--slate);
+    border: 1px solid var(--slate-line);
+    border-radius: 14px;
+    padding: 14px 6px 10px;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    position:relative;
+    transition: transform .08s ease, background .15s ease;
+  }
+  .product:active{ transform: scale(0.94); background: #33261c; }
+  .product .emoji{ font-size: 26px; }
+  .product .pimg{ width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.35)); }
+  .product .pname{ font-size: 12px; font-weight:700; text-align:center; color:var(--chalk); }
+  .product .pprice{ font-size: 10px; color:var(--chalk-dim); }
+  .product .badge{
+    position:absolute; top:-8px; right:-8px;
+    background: var(--amber); color:#1b1410; font-weight:800; font-size:12px;
+    min-width:22px; height:22px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    animation: pop .18s ease;
+  }
+  @keyframes pop{ from{ transform:scale(0);} to{transform:scale(1);} }
+
+  .pay-btn{
+    margin-top: 24px;
+    background: linear-gradient(180deg, var(--paid), #4e8a63);
+    color: #12261a; border:none; border-radius:16px; padding:18px;
+    font-weight:800; font-size:16px;
+    box-shadow: 0 6px 0 #3a6b4b, 0 10px 20px rgba(0,0,0,0.3);
+  }
+  .pay-btn:active{ transform: translateY(4px); box-shadow: 0 2px 0 #3a6b4b; }
+  .pay-btn:disabled{ opacity:0.35; box-shadow:none; }
+
+  .toast{
+    position:fixed; bottom: 30px; left:50%; transform: translateX(-50%) translateY(20px);
+    background: var(--paid); color:#12261a; font-weight:800; font-size:14px;
+    padding: 14px 22px; border-radius: 12px; opacity:0; pointer-events:none;
+    transition: all .25s ease; box-shadow: 0 10px 24px rgba(0,0,0,0.4);
+    max-width: 380px; text-align:center; z-index:50;
+  }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+
+  .name-modal-bg{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55); display:none;
+    align-items:flex-end; justify-content:center; z-index:40;
+  }
+  .name-modal-bg.show{ display:flex; }
+  .name-modal{
+    background: var(--slate); width:100%; max-width:420px; border-radius: 20px 20px 0 0;
+    padding: 26px 22px 30px; border-top:1px solid var(--slate-line);
+    animation: slideup .22s ease;
+  }
+  @keyframes slideup{ from{ transform:translateY(100%);} to{transform:translateY(0);} }
+  .name-modal h3{ font-family:'Kalam',cursive; font-size:20px; margin:0 0 4px; color:var(--amber); }
+  .name-modal p{ font-size:12px; color:var(--chalk-dim); margin:0 0 16px; }
+  .name-modal input{
+    width:100%; background: var(--bg-soft); border:1px solid var(--slate-line); border-radius:12px;
+    padding: 14px; color:var(--chalk); font-size:16px; font-family:'Kalam',cursive; margin-bottom:14px;
+  }
+  .name-modal .btn-row{ display:flex; gap:10px; }
+  .name-modal button{ flex:1; border:none; border-radius:12px; padding:14px; font-weight:800; font-size:14px; }
+  .name-modal .skip{ background:var(--bg-soft); color:var(--chalk-dim); }
+  .name-modal .create{ background: var(--amber); color:#1b1410; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="topbar">
+    <div class="brand">La Gérante <span>Prototype interactif</span></div>
+  </div>
+
+  <!-- ACCUEIL -->
+  <div class="screen active" id="screen-accueil">
+    <button class="new-client-btn" onclick="openNameModal()"><span class="plus">＋</span> Nouveau client</button>
+    <button class="new-client-btn" style="background: linear-gradient(180deg, #5a7d9a, #3d5a73); box-shadow: 0 6px 0 #2a3f50, 0 10px 20px rgba(0,0,0,0.35); margin-bottom: 18px;" onclick="openProductsScreen()">
+  <span class="plus">⚙</span> Gérer les produits
+</button>
+    <div class="section-label">Clients en cours</div>
+    <div class="client-list" id="client-list"></div>
+  </div>
+
+  <!-- FACTURE -->
+  <div class="screen" id="screen-facture">
+    <div class="back-row">
+      <button class="back-btn" onclick="goHome()">←</button>
+    </div>
+    <div class="facture-header">
+      <div class="name" id="facture-name">Client 1</div>
+      <div class="total-wrap">
+        <div class="total-label">Total</div>
+        <div class="total" id="facture-total">0 FCFA</div>
+      </div>
+    </div>
+
+    <div class="lignes" id="lignes-container"></div>
+
+    <div class="grid-label">Consommations — appui long pour ajuster</div>
+    <div class="product-grid" id="product-grid"></div>
+
+    <button class="pay-btn" id="pay-btn" onclick="markPaid()" disabled>Marquer payé</button>
+  </div>
+</div>
+
+<!-- ÉCRAN PRODUITS -->
+<div class="screen" id="screen-products">
+  <div class="back-row">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <div style="font-weight:700; font-size:16px; margin-left:8px;">Gestion des produits</div>
+  </div>
+
+  <button class="new-client-btn" style="margin-bottom:20px;" onclick="openAddProductModal()">
+    <span class="plus">＋</span> Ajouter un produit
+  </button>
+
+  <div class="section-label">Liste des produits</div>
+  <div class="client-list" id="products-list"></div>
+</div>
+<div class="name-modal-bg" id="name-modal-bg">
+  <div class="name-modal">
+    <h3>Nouveau client</h3>
+    <p>Tape un nom, ou laisse vide pour un nom automatique.</p>
+    <input id="name-input" placeholder="Ex: Junior, Table du fond..." />
+    <div class="btn-row">
+      <button class="skip" onclick="createClient(false)">Sans nom</button>
+      <button class="create" onclick="createClient(true)">Créer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Produits par défaut
+const DEFAULT_PRODUCTS = [
+  {id: 'regab', img: '', name: 'Cigarette (bâton)', price: 100},
+];
+
+// Charger les produits sauvegardés ou utiliser les défauts
+let PRODUCTS = JSON.parse(localStorage.getItem('lagarante_products')) || DEFAULT_PRODUCTS;
+
+function saveProducts() {
+  localStorage.setItem('lagarante_products', JSON.stringify(PRODUCTS));
+}
+
+let clients = [];
+let clientCounter = 0;
+let activeClientId = null;
+let longPressTimer = null;
+
+function fmt(n){ return n.toLocaleString('fr-FR') + ' FCFA'; }
+
+function openNameModal(){
+  document.getElementById('name-input').value = '';
+  document.getElementById('name-modal-bg').classList.add('show');
+  setTimeout(()=>document.getElementById('name-input').focus(), 200);
+}
+function closeNameModal(){
+  document.getElementById('name-modal-bg').classList.remove('show');
+}
+
+function createClient(useInput){
+  clientCounter++;
+  let name = 'Client ' + clientCounter;
+  if(useInput){
+    const val = document.getElementById('name-input').value.trim();
+    if(val) name = val;
+  }
+  const client = { id: Date.now(), name, statut:'impayé', lignes: [] };
+  clients.push(client);
+  closeNameModal();
+  activeClientId = client.id;
+  renderAccueil();
+  openFacture(client.id);
+}
+
+function renderAccueil(){
+  const list = document.getElementById('client-list');
+  const open = clients.filter(c => c.statut === 'impayé');
+  if(open.length === 0){
+    list.innerHTML = '<div class="empty-state"><span class="big">🪑</span>Aucun client pour l’instant.<br>Tape "Nouveau client" pour commencer.</div>';
+    return;
+  }
+  list.innerHTML = open.map(c => {
+    const total = c.lignes.reduce((s,l)=> s + l.prix*l.quantite, 0);
+    const nbItems = c.lignes.reduce((s,l)=> s + l.quantite, 0);
+    return `<div class="client-card" onclick="openFacture(${c.id})">
+      <div>
+        <div class="name">${c.name}</div>
+        <div class="meta">${nbItems > 0 ? nbItems + ' article' + (nbItems>1?'s':'') : 'Aucune conso'}</div>
+      </div>
+      <div class="total">${fmt(total)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ========== GESTION DES PRODUITS ==========
+
+function openProductsScreen() {
+  document.getElementById('screen-accueil').classList.remove('active');
+  document.getElementById('screen-facture').classList.remove('active');
+  document.getElementById('screen-products').classList.add('active');
+  renderProductsList();
+}
+
+function renderProductsList() {
+  const list = document.getElementById('products-list');
+  
+  if (PRODUCTS.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="big">📦</span>Aucun produit.<br>Ajoute ton premier produit.</div>';
+    return;
+  }
+
+  list.innerHTML = PRODUCTS.map(p => `
+    <div class="client-card" style="cursor:default;">
+      <div>
+        <div class="name">${p.name}</div>
+        <div class="meta">${fmt(p.price)}</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button onclick="editProduct('${p.id}')" style="background:#3a2d22; border:1px solid #5a4a3a; color:#f3ece0; border-radius:8px; padding:6px 10px; font-size:13px;">Modifier</button>
+        <button onclick="deleteProduct('${p.id}')" style="background:#5a2a2a; border:1px solid #7a3a3a; color:#f3ece0; border-radius:8px; padding:6px 10px; font-size:13px;">Suppr</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAddProductModal() {
+  const name = prompt('Nom du produit :');
+  if (!name || name.trim() === '') return;
+
+  const priceStr = prompt('Prix (en FCFA) :');
+  const price = parseInt(priceStr);
+  if (isNaN(price) || price < 0) {
+    alert('Prix invalide');
+    return;
+  }
+
+  const newProduct = {
+    id: 'prod_' + Date.now(),
+    img: '',
+    name: name.trim(),
+    price: price
+  };
+
+  PRODUCTS.push(newProduct);
+  saveProducts();
+  renderProductsList();
+  showToast('Produit ajouté ✓');
+}
+
+function editProduct(id) {
+  const product = PRODUCTS.find(p => p.id === id);
+  if (!product) return;
+
+  const newName = prompt('Nouveau nom :', product.name);
+  if (newName === null) return;
+
+  const newPriceStr = prompt('Nouveau prix :', product.price);
+  if (newPriceStr === null) return;
+
+  const newPrice = parseInt(newPriceStr);
+  if (isNaN(newPrice) || newPrice < 0) {
+    alert('Prix invalide');
+    return;
+  }
+
+  product.name = newName.trim() || product.name;
+  product.price = newPrice;
+  saveProducts();
+  renderProductsList();
+  showToast('Produit modifié ✓');
+}
+
+function deleteProduct(id) {
+  if (!confirm('Supprimer ce produit ?')) return;
+
+  PRODUCTS = PRODUCTS.filter(p => p.id !== id);
+  saveProducts();
+  renderProductsList();
+  showToast('Produit supprimé ✓');
+}
+function goHome(){
+  document.getElementById('screen-facture').classList.remove('active');
+  document.getElementById('screen-accueil').classList.add('active');
+  renderAccueil();
+}
+
+function openFacture(id){
+  activeClientId = id;
+  document.getElementById('screen-accueil').classList.remove('active');
+  document.getElementById('screen-facture').classList.add('active');
+  renderProductGrid();
+  renderFacture();
+}
+
+function getActiveClient(){
+  return clients.find(c => c.id === activeClientId);
+}
+
+function renderFacture(){
+  const c = getActiveClient();
+  document.getElementById('facture-name').textContent = c.name;
+  const total = c.lignes.reduce((s,l)=> s + l.prix*l.quantite, 0);
+  document.getElementById('facture-total').textContent = fmt(total);
+
+  const container = document.getElementById('lignes-container');
+  if(c.lignes.length === 0){
+    container.innerHTML = '<div class="lignes-empty">Aucune consommation notée. Tape un produit ci-dessous.</div>';
+  } else {
+    container.innerHTML = c.lignes.map(l => `
+      <div class="ligne" id="ligne-${l.produitId}">
+        <div class="lname">${l.nom}<span class="qty">×${l.quantite}</span></div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="lprice">${fmt(l.prix*l.quantite)}</div>
+          <div class="stepper">
+            <button onclick="adjustQty('${l.produitId}', -1)">−</button>
+            <div class="qnum">${l.quantite}</div>
+            <button onclick="adjustQty('${l.produitId}', 1)">+</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('pay-btn').disabled = c.lignes.length === 0;
+  updateBadges();
+}
+
+function renderProductGrid(){
+  const grid = document.getElementById('product-grid');
+  grid.innerHTML = PRODUCTS.map(p => `
+    <div class="product" data-id="${p.id}" onclick="tapProduct('${p.id}')">
+      <img class="pimg" src="${p.img}" alt="${p.name}">
+      <div class="pname">${p.name}</div>
+      <div class="pprice">${fmt(p.price)}</div>
+    </div>
+  `).join('');
+}
+
+function updateBadges(){
+  const c = getActiveClient();
+  PRODUCTS.forEach(p => {
+    const el = document.querySelector(`.product[data-id="${p.id}"]`);
+    if(!el) return;
+    const existingBadge = el.querySelector('.badge');
+    const ligne = c.lignes.find(l => l.produitId === p.id);
+    if(ligne && ligne.quantite > 0){
+      if(existingBadge){ existingBadge.textContent = ligne.quantite; }
+      else {
+        const b = document.createElement('div');
+        b.className = 'badge';
+        b.textContent = ligne.quantite;
+        el.appendChild(b);
+      }
+    } else if(existingBadge){
+      existingBadge.remove();
+    }
+  });
+}
+
+function tapProduct(id){
+  const c = getActiveClient();
+  const p = PRODUCTS.find(p => p.id === id);
+  let ligne = c.lignes.find(l => l.produitId === id);
+  if(ligne){
+    ligne.quantite += 1;
+  } else {
+    c.lignes.push({ produitId: id, nom: p.name, prix: p.price, quantite: 1 });
+  }
+  renderFacture();
+}
+
+function adjustQty(id, delta){
+  const c = getActiveClient();
+  const ligne = c.lignes.find(l => l.produitId === id);
+  if(!ligne) return;
+  ligne.quantite += delta;
+  if(ligne.quantite <= 0){
+    c.lignes = c.lignes.filter(l => l.produitId !== id);
+  }
+  renderFacture();
+}
+
+function markPaid(){
+  const c = getActiveClient();
+  c.statut = 'payé';
+  showToast(`${c.name} — ${fmt(c.lignes.reduce((s,l)=> s + l.prix*l.quantite,0))} encaissé ✓`);
+  goHome();
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 2200);
+}
+
+renderAccueil();
+</script>
+
+</body>
+</html>
