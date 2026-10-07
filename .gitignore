@@ -1,0 +1,21 @@
+# Dépendances
+node_modules/
+
+# Build Next.js
+.next/
+out/
+
+# Variables d'environnement — ne jamais committer
+.env
+.env.local
+.env.*
+!.env.example
+
+# Fichiers temporaires de vérification
+_scaffold.log
+_verif.txt
+
+# Divers
+.DS_Store
+*.pem
+*.log
