@@ -34,7 +34,15 @@ export default function SupabaseStatus() {
       .getUser()
       .then(({ error }) => {
         if (error) {
-          setState({ status: "error", detail: error.message });
+          // "Auth session missing" = aucun utilisateur connecté (session vide).
+          // Ce n'est PAS une erreur de connexion : Supabase a bien répondu,
+          // donc la connexion fonctionne. Seule une vraie erreur (clés fausses,
+          // API invalide, réseau coupé...) doit afficher "Connexion impossible".
+          if (error.message.includes("Auth session missing")) {
+            setState({ status: "ok", detail: supabaseUrl ?? "URL inconnue" });
+          } else {
+            setState({ status: "error", detail: error.message });
+          }
         } else {
           setState({ status: "ok", detail: supabaseUrl ?? "URL inconnue" });
         }
