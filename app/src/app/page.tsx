@@ -1,4 +1,4 @@
-import SupabaseStatus from "@/components/supabase-status";
+import AuthGate from "@/components/auth-gate";
 
 export default function Home() {
   return (
@@ -8,8 +8,9 @@ export default function Home() {
         <p className="mb-10 mt-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#b8ab98]">
           Application de gestion
         </p>
-        <SupabaseStatus />
+        <AuthGate />
       </main>
     </div>
   );
 }
+
