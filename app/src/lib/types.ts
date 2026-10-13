@@ -12,3 +12,22 @@ export type Profile = {
     code_invitation: string;
   } | null;
 };
+
+export type Product = {
+  id: string;
+  team_id: string;
+  nom: string;
+  prix: number | string;
+  icone: string;
+  img: string;
+  stock: number | string;
+  popularite: number;
+  actif: boolean;
+  created_at: string;
+};
+
+export type TeamMember = {
+  id: string;
+  nom: string;
+  role: string;
+};

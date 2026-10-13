@@ -2,6 +2,8 @@
 
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/lib/types";
+import ProductsSection from "@/components/products-section";
+import TeamSection from "@/components/team-section";
 
 const TYPE_LABELS: Record<string, string> = {
   bar: "Bar",
@@ -17,9 +19,11 @@ const ROLE_LABELS: Record<string, string> = {
 
 export default function Dashboard({ profile }: { profile: Profile }) {
   const team = profile.teams;
-  // Le code d'invitation n'est visible que par le propriétaire et le manager.
-  const canSeeInvite =
+  // Gestion (produits, équipe) et code d'invitation : propriétaire et manager
+  // uniquement. La serveuse voit les produits mais ne peut rien modifier.
+  const canManage =
     profile.role === "proprietaire" || profile.role === "manager";
+  const canSeeInvite = canManage;
 
   async function handleSignOut() {
     await supabase?.auth.signOut();
@@ -54,6 +58,9 @@ export default function Dashboard({ profile }: { profile: Profile }) {
           </div>
         )}
       </div>
+
+      {team && <ProductsSection teamId={team.id} canManage={canManage} />}
+      {canManage && team && <TeamSection teamId={team.id} />}
 
       <button
         type="button"
